@@ -10,6 +10,7 @@ void * reducethread(void*);
 // for pairing together a filename and a map
 
 
+Partitioner partitioner;
 Mapper threadmap;
 Reducer threadreduce;
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
@@ -23,7 +24,7 @@ struct KeyValue{
 
 }KeyValue;
 
-struct KeyValue kv[100][100000];
+struct KeyValue kv[50][200000];
 char *keys[100][10000];
 // Counts number of elements in each partition
 int pnumbers[100];
@@ -127,6 +128,7 @@ void MR_Run(int argc, char *argv[],
 //}
 	threadmap = map;
 	threadreduce = reduce;
+	partitioner = partition;
 //	char files[100];
 //	int filesize;
 //	int filesizes[100];
@@ -195,7 +197,7 @@ void MR_Emit(char *key, char *value){
 	// This takes in a key and a value
 	// Stores them so reducers can use them
         // don't know num_partitions
-        unsigned long hash = MR_DefaultHashPartition(key, Numreducers);
+        unsigned long hash = partitioner(key, Numreducers);
 //       pthread_mutex_lock(&lock);
 //              pnumbers[hash]++;
 //       pthread_mutex_unlock(&lock);
